@@ -1,0 +1,249 @@
+# HaskShop - Itens Customizados com NBT
+#
+# Cada item recebe um hask_id unico no NBT, permitindo identificacao precisa.
+# Use /hs give <player> <id> [amount] para dar itens.
+#
+# Campos disponiveis:
+#   material:      nome do material em ingles maiusculo (ex: DIAMOND_PICKAXE)
+#   data:          data value do item (opcional, default 0)
+#   amount:        quantidade padrao ao dar com /hs give (opcional, default 1)
+#   name:          nome de exibicao (suporta cores com &)
+#   lore:          lista de linhas de descricao
+#   enchantments:  lista no formato NOME:NIVEL (ex: SILK_TOUCH:1)
+#   nbt:           tags NBT extras (string ou int)
+#
+# Para vender no NPC shop, use custom-item: <id> no npc-shops.yml
+
+items:
+  picareta_silk2:
+    material: DIAMOND_PICKAXE
+    name: "§ePicareta Silk Touch 2"
+    lore:
+      - ""
+      - "§4* §7Com esta picareta voce consegue"
+      - "§4* §7quebrar blocos especiais"
+    enchantments:
+      - SILK_TOUCH:1
+      - DIG_SPEED:5
+      - DURABILITY:3
+
+  gerador_bedrock:
+    material: BEDROCK
+    name: "§4§lGerador de Bedrock"
+    lore:
+      - ""
+      - "§7Coloque no chao para gerar"
+      - "§7um pilar de bedrock"
+      - ""
+      - "§6Usos: §f50"
+    nbt:
+      usos: 50
+
+  totem_morte:
+    material: SKULL_ITEM
+    data: 3
+    name: "§eTotem da Morte"
+    lore:
+      - ""
+      - "§7Nao perde itens ao morrer"
+    nbt:
+      usos: 1
+
+  # ── Spawners (contam no ranking /f top geradores) ──────────────────────────
+  spawner_cow:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Vaca"
+    lore:
+      - "§7Valor no ranking: §f$30,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: COW
+
+  spawner_pig:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Porco"
+    lore:
+      - "§7Valor no ranking: §f$20,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: PIG
+
+  spawner_sheep:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Ovelha"
+    lore:
+      - "§7Valor no ranking: §f$20,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: SHEEP
+
+  spawner_chicken:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Galinha"
+    lore:
+      - "§7Valor no ranking: §f$15,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: CHICKEN
+
+  spawner_squid:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Lula"
+    lore:
+      - "§7Valor no ranking: §f$25,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: SQUID
+
+  spawner_mushroom_cow:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Vaca Cogumelo"
+    lore:
+      - "§7Valor no ranking: §f$75,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: MUSHROOM_COW
+
+  spawner_wolf:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Lobo"
+    lore:
+      - "§7Valor no ranking: §f$60,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: WOLF
+
+  spawner_ocelot:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Ocelote"
+    lore:
+      - "§7Valor no ranking: §f$60,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: OCELOT
+
+  spawner_iron_golem:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Golem de Ferro"
+    lore:
+      - "§7Valor no ranking: §f$300,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: IRON_GOLEM
+
+  spawner_zombie:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Zumbi"
+    lore:
+      - "§7Valor no ranking: §f$40,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: ZOMBIE
+
+  spawner_skeleton:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Esqueleto"
+    lore:
+      - "§7Valor no ranking: §f$60,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: SKELETON
+
+  spawner_spider:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Aranha"
+    lore:
+      - "§7Valor no ranking: §f$40,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: SPIDER
+
+  spawner_cave_spider:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Aranha de Caverna"
+    lore:
+      - "§7Valor no ranking: §f$80,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: CAVE_SPIDER
+
+  spawner_creeper:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Creeper"
+    lore:
+      - "§7Valor no ranking: §f$100,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: CREEPER
+
+  spawner_silverfish:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Traca"
+    lore:
+      - "§7Valor no ranking: §f$30,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: SILVERFISH
+
+  spawner_slime:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Slime"
+    lore:
+      - "§7Valor no ranking: §f$100,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: SLIME
+
+  spawner_enderman:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Enderman"
+    lore:
+      - "§7Valor no ranking: §f$200,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: ENDERMAN
+
+  spawner_witch:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Bruxa"
+    lore:
+      - "§7Valor no ranking: §f$150,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: WITCH
+
+  spawner_pig_zombie:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Zumbi Porco"
+    lore:
+      - "§7Valor no ranking: §f$120,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: PIG_ZOMBIE
+
+  spawner_magma_cube:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Cubo de Magma"
+    lore:
+      - "§7Valor no ranking: §f$150,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: MAGMA_CUBE
+
+  spawner_blaze:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Blaze"
+    lore:
+      - "§7Valor no ranking: §f$350,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: BLAZE
+
+  spawner_ghast:
+    material: MOB_SPAWNER
+    name: "§aSpawner §fde Ghast"
+    lore:
+      - "§7Valor no ranking: §f$400,000"
+      - "§7Coloque no territorio da sua faccao."
+    nbt:
+      hask_spawner_type: GHAST
