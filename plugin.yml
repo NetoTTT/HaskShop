@@ -1,0 +1,18 @@
+name: HaskShop
+version: 1.0.0
+main: com.hask.shop.HaskShop
+depend: [Vault]
+
+commands:
+  cs:
+    description: Gerencia lojas em placas
+    usage: /cs <add|edit <ID>|remove <ID>|list>
+    permission: shopsign.admin
+
+permissions:
+  shopsign.admin:
+    description: Permite criar e gerenciar lojas
+    default: op
+  shopsign.use:
+    description: Permite usar lojas
+    default: true
