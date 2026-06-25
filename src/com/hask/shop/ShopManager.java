@@ -179,7 +179,7 @@ public class ShopManager {
         return true;
     }
 
-    private ItemStack[] buildStacks(Material mat, int total) {
+    public ItemStack[] buildStacks(Material mat, int total) {
         int maxStack = mat.getMaxStackSize();
         int numStacks = (int) Math.ceil((double) total / maxStack);
         ItemStack[] stacks = new ItemStack[numStacks];

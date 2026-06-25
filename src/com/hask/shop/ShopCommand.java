@@ -1,6 +1,7 @@
 package com.hask.shop;
 
 import com.hask.shop.gui.EditGUI;
+import com.hask.shop.NpcShopManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -20,7 +21,10 @@ public class ShopCommand implements CommandExecutor {
             return true;
         }
         Player p = (Player) sender;
-        if (!p.hasPermission("shopsign.admin")) {
+        // /hs shop é publico - qualquer player pode usar (chamado pelo Citizens)
+        if (args.length > 0 && args[0].equalsIgnoreCase("shop")) {
+            // tratado no switch abaixo sem checar permissao
+        } else if (!p.hasPermission("shopsign.admin")) {
             p.sendMessage("§cVocê não tem permissão.");
             return true;
         }
@@ -31,6 +35,20 @@ public class ShopCommand implements CommandExecutor {
         }
 
         switch (args[0].toLowerCase()) {
+            case "shop": {
+                // Comando publico - abre loja de NPC (sem permissao de admin)
+                // Usado via /npc command add hs shop <shopId> no Citizens
+                if (args.length < 2) { p.sendMessage("§cUso: §f/hs shop <ID>"); return true; }
+                String shopId = args[1];
+
+                NpcShopManager.NpcShop npcShop = plugin.npcShopManager.getShop(shopId);
+                if (npcShop == null) { p.sendMessage("§cLoja §f" + shopId + " §cnao encontrada."); return true; }
+                if (npcShop.items.isEmpty()) { p.sendMessage("§cEsta loja nao tem itens."); return true; }
+
+                com.hask.shop.gui.NpcShopGUI.open(p, npcShop, 0);
+                return true;
+            }
+
             case "info":
                 if (plugin.pendingInfo.contains(p.getUniqueId())) {
                     plugin.pendingInfo.remove(p.getUniqueId());
@@ -38,7 +56,7 @@ public class ShopCommand implements CommandExecutor {
                 } else {
                     plugin.pendingInfo.add(p.getUniqueId());
                     p.sendMessage("§eModo info ativado! Clique com o botao direito em uma placa.");
-                    p.sendMessage("§7Use §f/cs info §7novamente para cancelar.");
+                    p.sendMessage("§7Use §f/hs info §7novamente para cancelar.");
                 }
                 break;
 
@@ -50,12 +68,12 @@ public class ShopCommand implements CommandExecutor {
                     plugin.pendingAdd.add(p.getUniqueId());
                     p.sendMessage("§aModo de criação ativado!");
                     p.sendMessage("§7Clique com o §fbotão direito §7em uma placa para registrá-la como loja.");
-                    p.sendMessage("§7Use §f/cs add §7novamente para cancelar.");
+                    p.sendMessage("§7Use §f/hs add §7novamente para cancelar.");
                 }
                 break;
 
             case "edit":
-                if (args.length < 2) { p.sendMessage("§cUso: §f/cs edit <ID>"); return true; }
+                if (args.length < 2) { p.sendMessage("§cUso: §f/hs edit <ID>"); return true; }
                 try {
                     int id = Integer.parseInt(args[1]);
                     ShopData shop = plugin.shopManager.getById(id);
@@ -67,7 +85,7 @@ public class ShopCommand implements CommandExecutor {
                 break;
 
             case "remove":
-                if (args.length < 2) { p.sendMessage("§cUso: §f/cs remove <ID>"); return true; }
+                if (args.length < 2) { p.sendMessage("§cUso: §f/hs remove <ID>"); return true; }
                 try {
                     int id = Integer.parseInt(args[1]);
                     if (plugin.shopManager.remove(id)) {
@@ -77,6 +95,22 @@ public class ShopCommand implements CommandExecutor {
                     }
                 } catch (NumberFormatException e) {
                     p.sendMessage("§cID inválido.");
+                }
+                break;
+
+            case "reload":
+                plugin.reload();
+                p.sendMessage("§aHaskShop recarregado! §f" + plugin.npcShopManager.getAll().size() + " NPC(s) de loja.");
+                break;
+
+            case "npcshop":
+                if (plugin.npcShopManager.getAll().isEmpty()) {
+                    p.sendMessage("§7Nenhuma loja de NPC configurada em npc-shops.yml.");
+                    return true;
+                }
+                p.sendMessage("§6§l=== Lojas de NPC ===");
+                for (NpcShopManager.NpcShop shop : plugin.npcShopManager.getAll().values()) {
+                    p.sendMessage("§f" + shop.shopId + " §8| " + shop.name + " §8| §7" + shop.items.size() + " spawner(s)");
                 }
                 break;
 
@@ -100,10 +134,12 @@ public class ShopCommand implements CommandExecutor {
 
     private void sendHelp(Player p) {
         p.sendMessage("§6§l=== HaskShop ===");
-        p.sendMessage("§f/cs add §7- Ativa modo de criacao (clique numa placa)");
-        p.sendMessage("§f/cs info §7- Clique numa placa para ver o ID e config");
-        p.sendMessage("§f/cs edit <ID> §7- Edita a loja via GUI");
-        p.sendMessage("§f/cs remove <ID> §7- Remove uma loja");
-        p.sendMessage("§f/cs list §7- Lista todas as lojas");
+        p.sendMessage("§f/hs add §7- Ativa modo de criacao (clique numa placa)");
+        p.sendMessage("§f/hs info §7- Clique numa placa para ver o ID e config");
+        p.sendMessage("§f/hs edit <ID> §7- Edita a loja via GUI");
+        p.sendMessage("§f/hs remove <ID> §7- Remove uma loja");
+        p.sendMessage("§f/hs list §7- Lista todas as lojas");
+        p.sendMessage("§f/hs npcshop §7- Lista lojas de NPC configuradas");
+        p.sendMessage("§f/hs reload §7- Recarrega npc-shops.yml");
     }
 }

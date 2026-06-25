@@ -100,7 +100,7 @@ public class ShopListener implements Listener {
     public void onChat(AsyncPlayerChatEvent e) {
         Player p = e.getPlayer();
 
-        // Entrada de quantidade para compra/venda
+        // Entrada de quantidade para compra/venda (placa)
         ShopData qtyShop = plugin.pendingPurchaseQty.get(p.getUniqueId());
         if (qtyShop != null) {
             e.setCancelled(true);
@@ -110,29 +110,72 @@ public class ShopListener implements Listener {
                 p.sendMessage("§7Cancelado.");
                 return;
             }
-            try {
-                int qty = Integer.parseInt(input);
-                if (qty < 1) {
-                    p.sendMessage("§cA quantidade deve ser pelo menos §f1§c.");
+            boolean isAll = isAll(input);
+            int qty;
+            if (isAll) {
+                if (qtyShop.type.equals("SELL")) {
+                    int count = countItems(p, qtyShop.item);
+                    qty = count / qtyShop.amount;
+                    if (qty < 1) { p.sendMessage("§cVoce nao tem §f" + qtyShop.amount + "x §c" + qtyShop.item.name() + " §cno inventario."); return; }
+                } else {
+                    int space = plugin.shopManager.freeSpace(p, qtyShop.item);
+                    int maxBySpace = space / qtyShop.amount;
+                    int maxByMoney = (int)(HaskShop.economy.getBalance(p.getName()) / qtyShop.price);
+                    qty = Math.min(maxBySpace, maxByMoney);
+                    if (qty < 1) { p.sendMessage("§cCoins ou espaco insuficiente para comprar."); return; }
+                }
+            } else {
+                try { qty = Integer.parseInt(input); } catch (NumberFormatException ex) { p.sendMessage("§cDigite um numero ou §fall§c/§ftodos§c/§ftudo§c/§fmax§c para o maximo."); return; }
+                if (qty < 1) { p.sendMessage("§cA quantidade deve ser pelo menos §f1§c."); return; }
+            }
+            plugin.pendingPurchaseQty.remove(p.getUniqueId());
+            final ShopData shop = qtyShop;
+            final int finalQty = qty;
+            if (shop.type.equals("BUY")) {
+                int space = plugin.shopManager.freeSpace(p, shop.item);
+                if (space < shop.amount * qty) {
+                    p.sendMessage("§cInventario cheio! Espaco para §f" + space + " §citens, precisa de §f" + (shop.amount * qty) + "§c.");
                     return;
                 }
-                plugin.pendingPurchaseQty.remove(p.getUniqueId());
-                final ShopData shop = qtyShop;
-                final int finalQty = qty;
-                // Valida espaco no inventario antes de abrir confirmacao (apenas para compras)
-                if (shop.type.equals("BUY")) {
-                    int totalItems = shop.amount * qty;
-                    int space = plugin.shopManager.freeSpace(p, shop.item);
-                    if (space < totalItems) {
-                        p.sendMessage("§cInventario cheio! Voce tem espaco para §f" + space + " §citens, mas precisa de §f" + totalItems + "§c.");
-                        return;
-                    }
-                }
-                plugin.pendingConfirm.put(p.getUniqueId(), new ConfirmSession(qtyShop.id, qty));
-                plugin.getServer().getScheduler().runTask(plugin, () -> ConfirmGUI.open(p, shop, finalQty));
-            } catch (NumberFormatException ex) {
-                p.sendMessage("§cDigite apenas numeros.");
             }
+            plugin.pendingConfirm.put(p.getUniqueId(), new ConfirmSession(qtyShop.id, qty));
+            plugin.getServer().getScheduler().runTask(plugin, () -> ConfirmGUI.open(p, shop, finalQty));
+            return;
+        }
+
+        // Entrada de quantidade para loja de NPC (quantity_free)
+        com.hask.shop.NpcQtySession npcQtySession = plugin.pendingNpcQty.get(p.getUniqueId());
+        if (npcQtySession != null) {
+            e.setCancelled(true);
+            String input = e.getMessage().trim();
+            if (input.equalsIgnoreCase("cancel")) {
+                plugin.pendingNpcQty.remove(p.getUniqueId());
+                p.sendMessage("§7Cancelado.");
+                return;
+            }
+            boolean isAll = isAll(input);
+            int qty;
+            if (isAll) {
+                if (npcQtySession.transactionType.equals("SELL")) {
+                    qty = countItems(p, npcQtySession.item.itemType);
+                    if (qty < 1) { p.sendMessage("§cVoce nao tem §f" + npcQtySession.item.itemType.name() + " §cno inventario."); return; }
+                } else {
+                    int space = plugin.shopManager.freeSpace(p, npcQtySession.item.itemType);
+                    int maxByMoney = (int)(HaskShop.economy.getBalance(p.getName()) / npcQtySession.item.buyPrice);
+                    qty = Math.min(space, maxByMoney);
+                    if (qty < 1) { p.sendMessage("§cCoins ou espaco insuficiente para comprar."); return; }
+                }
+            } else {
+                try { qty = Integer.parseInt(input); } catch (NumberFormatException ex) { p.sendMessage("§cDigite um numero ou §fall§c/§ftodos§c/§ftudo§c/§fmax§c para o maximo."); return; }
+                if (qty < 1) { p.sendMessage("§cA quantidade deve ser pelo menos §f1§c."); return; }
+            }
+            plugin.pendingNpcQty.remove(p.getUniqueId());
+            final com.hask.shop.NpcQtySession s = npcQtySession;
+            final int finalQty = qty;
+            plugin.pendingNpcConfirm.put(p.getUniqueId(),
+                new com.hask.shop.NpcConfirmSession(s.shopId, s.item, s.transactionType, finalQty));
+            plugin.getServer().getScheduler().runTask(plugin,
+                () -> com.hask.shop.gui.NpcConfirmGUI.open(p, s.item, s.transactionType, finalQty));
             return;
         }
 
@@ -219,6 +262,33 @@ public class ShopListener implements Listener {
         plugin.pendingEdit.remove(uuid);
         plugin.pendingPurchaseQty.remove(uuid);
         plugin.pendingConfirm.remove(uuid);
+        plugin.pendingNpcQty.remove(uuid);
+        plugin.pendingNpcConfirm.remove(uuid);
         plugin.cooldowns.remove(uuid);
+    }
+
+    private static boolean isAll(String input) {
+        switch (input.toLowerCase()) {
+            case "all":
+            case "todos":
+            case "tudo":
+            case "everything":
+            case "max":
+            case "maximo":
+            case "máximo":
+            case "total":
+            case "full":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private int countItems(Player p, Material mat) {
+        int count = 0;
+        for (org.bukkit.inventory.ItemStack is : p.getInventory().getContents()) {
+            if (is != null && is.getType() == mat) count += is.getAmount();
+        }
+        return count;
     }
 }
