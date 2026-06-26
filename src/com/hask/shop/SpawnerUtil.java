@@ -115,6 +115,9 @@ public class SpawnerUtil {
             NBTTagCompound blockTag = new NBTTagCompound();
             blockTag.setString("EntityId", nmsName);
             tag.set("BlockEntityTag", blockTag);
+            // Tags para rastreamento no FactionsFork (/f top geradores)
+            tag.setString("hask_id", "spawner_" + entityTypeName.toLowerCase());
+            tag.setString("hask_spawner_type", entityTypeName.toUpperCase());
             nmsItem.setTag(tag);
             return CraftItemStack.asBukkitCopy(nmsItem);
         } catch (Exception e) {
