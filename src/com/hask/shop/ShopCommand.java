@@ -1,7 +1,10 @@
 package com.hask.shop;
 
+import com.hask.shop.custom.CustomItemBuilder;
+import com.hask.shop.custom.CustomItemRegistry;
 import com.hask.shop.gui.EditGUI;
 import com.hask.shop.NpcShopManager;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -98,9 +101,66 @@ public class ShopCommand implements CommandExecutor {
                 }
                 break;
 
+            case "give": {
+                // /hs give <player> <itemId> [amount]
+                if (args.length < 3) { p.sendMessage("§cUso: §f/hs give <player> <itemId> [amount]"); return true; }
+                org.bukkit.entity.Player target = plugin.getServer().getPlayerExact(args[1]);
+                if (target == null) { p.sendMessage("§cJogador §f" + args[1] + " §cnao encontrado."); return true; }
+                String itemId = args[2];
+                ItemStack custom = plugin.customItemRegistry.get(itemId);
+                if (custom == null) { p.sendMessage("§cItem §f" + itemId + " §cnao encontrado em custom-items.yml."); return true; }
+                int amount = args.length >= 4 ? parseInt(args[3], 1) : custom.getAmount();
+                ItemStack toGive = custom.clone();
+                toGive.setAmount(Math.max(1, amount));
+                target.getInventory().addItem(toGive);
+                p.sendMessage("§aDado §f" + amount + "x §a[" + itemId + "] §apara §f" + target.getName() + "§a.");
+                if (!p.equals(target)) target.sendMessage("§aVoce recebeu §f" + amount + "x §a[" + itemId + "]§a.");
+                break;
+            }
+
+            case "items": {
+                // /hs items - lista itens customizados
+                if (plugin.customItemRegistry.getAll().isEmpty()) {
+                    p.sendMessage("§7Nenhum item customizado em custom-items.yml.");
+                    return true;
+                }
+                p.sendMessage("§6§l=== Itens Customizados ===");
+                for (java.util.Map.Entry<String, ItemStack> entry : plugin.customItemRegistry.getAll().entrySet()) {
+                    String displayName = entry.getValue().getItemMeta().hasDisplayName()
+                        ? entry.getValue().getItemMeta().getDisplayName() : "§f" + entry.getKey();
+                    p.sendMessage("§f" + entry.getKey() + " §8| " + displayName + " §8| §7" + entry.getValue().getType().name());
+                }
+                break;
+            }
+
+            case "nbt": {
+                // /hs nbt - mostra NBT do item na mao
+                ItemStack held = p.getItemInHand();
+                if (held == null || held.getType() == org.bukkit.Material.AIR) {
+                    p.sendMessage("§cSegure um item na mao.");
+                    return true;
+                }
+                try {
+                    net.minecraft.server.v1_8_R3.ItemStack nms = org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack.asNMSCopy(held);
+                    net.minecraft.server.v1_8_R3.NBTTagCompound tag = nms.getTag();
+                    if (tag == null || tag.isEmpty()) {
+                        p.sendMessage("§7Este item nao tem NBT.");
+                        return true;
+                    }
+                    p.sendMessage("§6§l=== NBT: " + held.getType().name() + " ===");
+                    for (String key : tag.c()) {
+                        net.minecraft.server.v1_8_R3.NBTBase val = tag.get(key);
+                        p.sendMessage("§f" + key + " §8= §a" + val);
+                    }
+                } catch (Exception ex) {
+                    p.sendMessage("§cErro ao ler NBT: " + ex.getMessage());
+                }
+                return true;
+            }
+
             case "reload":
                 plugin.reload();
-                p.sendMessage("§aHaskShop recarregado! §f" + plugin.npcShopManager.getAll().size() + " NPC(s) de loja.");
+                p.sendMessage("§aHaskShop recarregado! §f" + plugin.npcShopManager.getAll().size() + " NPC(s), §f" + plugin.customItemRegistry.getAll().size() + " item(s) customizado(s).");
                 break;
 
             case "npcshop":
@@ -132,6 +192,10 @@ public class ShopCommand implements CommandExecutor {
         return true;
     }
 
+    private int parseInt(String s, int def) {
+        try { return Integer.parseInt(s); } catch (NumberFormatException e) { return def; }
+    }
+
     private void sendHelp(Player p) {
         p.sendMessage("§6§l=== HaskShop ===");
         p.sendMessage("§f/hs add §7- Ativa modo de criacao (clique numa placa)");
@@ -140,6 +204,9 @@ public class ShopCommand implements CommandExecutor {
         p.sendMessage("§f/hs remove <ID> §7- Remove uma loja");
         p.sendMessage("§f/hs list §7- Lista todas as lojas");
         p.sendMessage("§f/hs npcshop §7- Lista lojas de NPC configuradas");
-        p.sendMessage("§f/hs reload §7- Recarrega npc-shops.yml");
+        p.sendMessage("§f/hs items §7- Lista itens customizados (NBT)");
+        p.sendMessage("§f/hs give <player> <id> [qty] §7- Da um item customizado");
+        p.sendMessage("§f/hs nbt §7- Mostra NBT do item na mao");
+        p.sendMessage("§f/hs reload §7- Recarrega todas as configs");
     }
 }
