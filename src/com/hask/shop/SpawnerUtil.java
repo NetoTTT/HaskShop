@@ -31,9 +31,9 @@ public class SpawnerUtil {
 
     static {
         List<MobEntry> list = new ArrayList<>();
-        String h = "§c"; // hostil
-        String n = "§e"; // neutro
-        String p = "§a"; // passivo
+        String h = "\u00A7c"; // hostil
+        String n = "\u00A7e"; // neutro
+        String p = "\u00A7a"; // passivo
 
         // Hostis
         list.add(new MobEntry(EntityType.ZOMBIE,      (short)54,  "Zumbi",               h));
@@ -98,8 +98,8 @@ public class SpawnerUtil {
         try {
             MobEntry entry = getEntry(entityTypeName);
             String displayName = entry != null
-                ? "§d§lSpawner §8» " + entry.color + "§l" + entry.ptName
-                : "§d§lSpawner de Mob";
+                ? "\u00A7d\u00A7lSpawner \u00A78» " + entry.color + "\u00A7l" + entry.ptName
+                : "\u00A7d\u00A7lSpawner de Mob";
 
             ItemMeta meta = item.getItemMeta();
             if (meta != null) {

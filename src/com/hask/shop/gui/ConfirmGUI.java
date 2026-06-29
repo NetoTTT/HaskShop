@@ -13,12 +13,12 @@ import java.util.List;
 
 public class ConfirmGUI {
 
-    public static final String TITLE = "§cConfirmar Compra";
+    public static final String TITLE = "\u00A7cConfirmar Compra";
 
     public static void open(Player p, ShopData shop, int qty) {
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);
 
-        ItemStack glass = item(Material.STAINED_GLASS_PANE, (short) 7, "§r", null);
+        ItemStack glass = item(Material.STAINED_GLASS_PANE, (short) 7, "\u00A7r", null);
         for (int i = 0; i < 27; i++) inv.setItem(i, glass);
 
         int totalItems = shop.amount * qty;
@@ -26,27 +26,27 @@ public class ConfirmGUI {
         boolean isBuy = shop.type.equals("BUY");
 
         // Slot 11 — Cancelar
-        inv.setItem(11, item(Material.WOOL, (short) 14, "§c§lCANCELAR",
-            Arrays.asList("§7Clique para cancelar")));
+        inv.setItem(11, item(Material.WOOL, (short) 14, "\u00A7c\u00A7lCANCELAR",
+            Arrays.asList("\u00A77Clique para cancelar")));
 
         // Slot 13 — Resumo da transacao
         int displayAmt = Math.min(totalItems, shop.item.getMaxStackSize());
         ItemStack info = new ItemStack(shop.item, displayAmt);
         ItemMeta im = info.getItemMeta();
-        im.setDisplayName("§e§l" + shop.item.name().replace("_", " "));
+        im.setDisplayName("\u00A7e\u00A7l" + shop.item.name().replace("_", " "));
         if (isBuy) {
             im.setLore(Arrays.asList(
-                "§7Quantidade: §f" + totalItems + "x",
-                "§7Preco unitario: §f" + shop.price + " coins",
+                "\u00A77Quantidade: \u00A7f" + totalItems + "x",
+                "\u00A77Preco unitario: \u00A7f" + shop.price + " coins",
                 "",
-                "§6Total a pagar: §f" + totalPrice + " coins"
+                "\u00A76Total a pagar: \u00A7f" + totalPrice + " coins"
             ));
         } else {
             im.setLore(Arrays.asList(
-                "§7Voce entrega: §f" + totalItems + "x " + shop.item.name().replace("_", " "),
-                "§7Preco unitario: §f" + shop.price + " coins",
+                "\u00A77Voce entrega: \u00A7f" + totalItems + "x " + shop.item.name().replace("_", " "),
+                "\u00A77Preco unitario: \u00A7f" + shop.price + " coins",
                 "",
-                "§6Total a receber: §f" + totalPrice + " coins"
+                "\u00A76Total a receber: \u00A7f" + totalPrice + " coins"
             ));
         }
         info.setItemMeta(im);
@@ -54,10 +54,10 @@ public class ConfirmGUI {
 
         // Slot 15 — Confirmar
         String confirmLabel = isBuy
-            ? "§a§lCOMPRAR §f" + totalItems + "x por §6" + totalPrice + " coins"
-            : "§a§lVENDER §f" + totalItems + "x por §6" + totalPrice + " coins";
+            ? "\u00A7a\u00A7lCOMPRAR \u00A7f" + totalItems + "x por \u00A76" + totalPrice + " coins"
+            : "\u00A7a\u00A7lVENDER \u00A7f" + totalItems + "x por \u00A76" + totalPrice + " coins";
         inv.setItem(15, item(Material.WOOL, (short) 5, confirmLabel,
-            Arrays.asList("§7Clique para confirmar")));
+            Arrays.asList("\u00A77Clique para confirmar")));
 
         p.openInventory(inv);
     }

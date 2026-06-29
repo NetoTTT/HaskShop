@@ -1,0 +1,35 @@
+# CashShop - Itens vendidos por cash
+# Adicione novos itens aqui conforme necessario (suporta paginacao automatica)
+items:
+  lancador:
+    custom-item: lancador
+    price: 250
+    amount: 16
+  reparador:
+    custom-item: reparador
+    price: 250
+    amount: 1
+  booster_2x:
+    custom-item: booster_2x
+    price: 500
+    amount: 1
+  poder_instantaneo:
+    custom-item: poder_instantaneo
+    price: 100
+    amount: 1
+  bau_extra:
+    custom-item: bau_extra
+    price: 500
+    amount: 1
+  picareta_silk2:
+    custom-item: picareta_silk2
+    price: 1000
+    amount: 1
+  picareta_eff6:
+    custom-item: picareta_eff6
+    price: 500
+    amount: 1
+  espada_looting5:
+    custom-item: espada_looting5
+    price: 750
+    amount: 1

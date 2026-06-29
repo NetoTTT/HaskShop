@@ -29,27 +29,176 @@ items:
 
   gerador_bedrock:
     material: BEDROCK
-    name: "§4§lGerador de Bedrock"
+    name: "§6§lGerador de Bedrock"
     lore:
       - ""
       - "§7Coloque no chao para gerar"
-      - "§7um pilar de bedrock"
+      - "§7um pilar de bedrock para baixo"
+      - "§7(1 bloco/seg, ate 20 blocos)"
       - ""
-      - "§6Usos: §f50"
-    nbt:
-      usos: 50
+      - "§c§lUSO UNICO"
+    enchantments:
+      - DURABILITY:1
+
+  # ARQUIVADO: substituido pelo escavador_chunk
+  # buraco_10x10:
+  #   material: DIAMOND_SPADE
+  #   name: "§6§lBuraco 10x10"
+  #   lore:
+  #     - ""
+  #     - "§7Coloque no chao para abrir"
+  #     - "§7um buraco de 10x10 ate 20 blocos"
+  #     - ""
+  #     - "§6Usos: §f5"
+  #   nbt:
+  #     usos: 5
+
+  # ARQUIVADO: balde_lava_bedrock desativado (BlockFormEvent não funciona no 1.8.8)
+  # balde_lava_bedrock:
+  #   material: LAVA_BUCKET
+  #   name: "§6§lBalde de Lava Especial"
+  #   lore:
+  #     - ""
+  #     - "§7Coloque a lava e ao encostar"
+  #     - "§7na agua vira §4bedrock"
+  #     - ""
+  #     - "§6Usos: §f10"
+  #   nbt:
+  #     usos: 10
+  #   material: LAVA_BUCKET
+  #   name: "§6§lBalde de Lava Especial"
+  #   lore:
+  #     - ""
+  #     - "§7Coloque a lava e ao encostar"
+  #     - "§7na agua vira §4bedrock"
+  #     - ""
+  #     - "§6Usos: §f10"
+  #   nbt:
+  #     usos: 10
+
+  escavador_chunk:
+    material: SKULL_ITEM
+    data: 4
+    name: "§6§lEscavador de Chunk"
+    lore:
+      - ""
+      - "§7Clique em um bloco para escavar"
+      - "§7o chunk (16x16) 8 blocos acima"
+      - ""
+      - "§c§lUSO UNICO"
+      - ""
+      - "§7Stackavel ate 64"
+    enchantments:
+      - PROTECTION_ENVIRONMENTAL:1
+
+  reparador:
+    material: ANVIL
+    name: "§6Reparador Instantaneo"
+    lore:
+      - ""
+      - "§7Repara todos os itens do inventario"
+      - "§cNao pode usar em combate!"
+      - ""
+      - "§c§lUSO UNICO"
+    enchantments:
+      - PROTECTION_ENVIRONMENTAL:1
+
+  booster_2x:
+    material: NETHER_STAR
+    name: "§6Booster 2x mcMMO"
+    lore:
+      - ""
+      - "§7Clique com botao direito para"
+      - "§7escolher uma skill e ativar"
+      - "§7o booster 2x por 30 minutos"
+      - ""
+      - "§c§lUSO UNICO"
+    enchantments:
+      - PROTECTION_ENVIRONMENTAL:1
+
+  poder_instantaneo:
+    material: BLAZE_POWDER
+    name: "§6Poder Instantaneo"
+    lore:
+      - ""
+      - "§7Restaura seu poder ao maximo"
+      - ""
+      - "§c§lUSO UNICO"
+    enchantments:
+      - PROTECTION_ENVIRONMENTAL:1
+
+  bau_extra:
+    material: EMERALD
+    name: "§6Bau Extra"
+    lore:
+      - ""
+      - "§7Libera um slot extra no /bau"
+      - ""
+      - "§c§lUSO UNICO"
+    enchantments:
+      - PROTECTION_ENVIRONMENTAL:1
+
+  lancador:
+    material: MAGMA_CREAM
+    name: "§6Lancador"
+    lore:
+      - ""
+      - "§7Clique com botao direito"
+      - "§7para dar um impulso para cima"
+      - ""
+      - "§c§lUSO UNICO"
+      - ""
+      - "§7Stackavel ate 64"
+    enchantments:
+      - PROTECTION_ENVIRONMENTAL:1
+  totem_imortalidade:
+    material: NETHER_STAR
+    name: "§5§lTotem da Imortalidade"
+    lore:
+      - ""
+      - "§7Ao sofrer dano fatal, ativa"
+      - "§7e impede a morte com efeitos"
+      - ""
+      - "§c§lUSO UNICO"
+    enchantments:
+      - PROTECTION_ENVIRONMENTAL:1
 
   totem_morte:
-    material: SKULL_ITEM
-    data: 3
+    material: NETHER_STAR
     name: "§eTotem da Morte"
     lore:
       - ""
       - "§7Nao perde itens ao morrer"
+      - ""
+      - "§6Usos: §f1"
+    enchantments:
+      - PROTECTION_ENVIRONMENTAL:1
     nbt:
       usos: 1
 
   # ── Spawners (contam no ranking /f top geradores) ──────────────────────────
+  picareta_eff6:
+    material: DIAMOND_PICKAXE
+    name: "§6Picareta OP"
+    lore:
+      - ""
+      - "§7Efficiency 6 / Unbreaking 5 / Fortune 5"
+    enchantments:
+      - DIG_SPEED:6
+      - DURABILITY:5
+      - LOOT_BONUS_BLOCKS:5
+
+  espada_looting5:
+    material: DIAMOND_SWORD
+    name: "§6Espada Looting 5"
+    lore:
+      - ""
+      - "§7Sharpness 5 / Unbreaking 5 / Looting 5"
+    enchantments:
+      - DAMAGE_ALL:5
+      - DURABILITY:5
+      - LOOT_BONUS_MOBS:5
+
   spawner_cow:
     material: MOB_SPAWNER
     name: "§aSpawner §fde Vaca"

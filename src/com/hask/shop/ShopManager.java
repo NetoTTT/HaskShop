@@ -1,5 +1,6 @@
 package com.hask.shop;
 
+import com.hask.shop.custom.CustomItemBuilder;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -49,6 +50,10 @@ public class ShopManager {
             d.enabled = sec.getBoolean(key + ".enabled", true);
             d.askQuantity = sec.getBoolean(key + ".ask-quantity", false);
             d.spawnerType = sec.getString(key + ".spawner-type", null);
+            d.customItemId = sec.getString(key + ".custom-item", null);
+            if (d.customItemId != null && !plugin.customItemRegistry.contains(d.customItemId)) {
+                d.customItemId = null;
+            }
             shops.put(id, d);
             locationIndex.put(locKey(d.world, d.x, d.y, d.z), id);
         }
@@ -72,6 +77,7 @@ public class ShopManager {
             cfg.set(path + ".enabled", d.enabled);
             cfg.set(path + ".ask-quantity", d.askQuantity);
             if (d.spawnerType != null) cfg.set(path + ".spawner-type", d.spawnerType);
+            if (d.customItemId != null) cfg.set(path + ".custom-item", d.customItemId);
         }
         try {
             cfg.save(new File(plugin.getDataFolder(), "shops.yml"));
@@ -136,24 +142,61 @@ public class ShopManager {
         return space;
     }
 
+    public String getItemDisplayName(ShopData shop) {
+        if (shop.customItemId != null) {
+            ItemStack ci = plugin.customItemRegistry.get(shop.customItemId);
+            if (ci != null && ci.hasItemMeta() && ci.getItemMeta().hasDisplayName()) {
+                return ci.getItemMeta().getDisplayName();
+            }
+            return shop.customItemId;
+        }
+        if (shop.spawnerType != null) return "Spawner de " + shop.spawnerType;
+        return shop.item.name().replace("_", " ");
+    }
+
     public boolean executeBuy(Player p, ShopData shop, int qty) {
         int totalItems = shop.amount * qty;
         double totalPrice = shop.price * qty;
 
         if (HaskShop.economy.getBalance(p.getName()) < totalPrice) {
-            p.sendMessage("§cCoins insuficientes! Necessario: §f" + totalPrice + " coins.");
+            p.sendMessage("\u00A7cCoins insuficientes! Necessario: \u00A7f" + String.format("%.2f", totalPrice) + " coins.");
             return false;
         }
+
+        ItemStack[] toGive;
+        if (shop.customItemId != null) {
+            ItemStack template = plugin.customItemRegistry.get(shop.customItemId);
+            if (template == null) {
+                p.sendMessage("\u00A7cItem custom \u00A7f" + shop.customItemId + " \u00A7cnao encontrado no registro.");
+                return false;
+            }
+            int maxStack = template.getMaxStackSize();
+            int numStacks = (int) Math.ceil((double) totalItems / maxStack);
+            toGive = new ItemStack[numStacks];
+            for (int i = 0; i < numStacks; i++) {
+                ItemStack clone = template.clone();
+                clone.setAmount(Math.min(totalItems - i * maxStack, maxStack));
+                toGive[i] = clone;
+            }
+        } else if (shop.item == Material.MOB_SPAWNER && shop.spawnerType != null) {
+            toGive = SpawnerUtil.createStacks(shop.spawnerType, totalItems);
+        } else {
+            int maxStack = shop.item.getMaxStackSize();
+            int numStacks = (int) Math.ceil((double) totalItems / maxStack);
+            toGive = new ItemStack[numStacks];
+            for (int i = 0; i < numStacks; i++) {
+                toGive[i] = new ItemStack(shop.item, Math.min(totalItems - i * maxStack, maxStack));
+            }
+        }
+
         if (freeSpace(p, shop.item) < totalItems) {
-            p.sendMessage("§cInventario cheio! Libere espaco para §f" + totalItems + " §citens.");
+            p.sendMessage("\u00A7cInventario cheio! Libere espaco para \u00A7f" + totalItems + " \u00A7citens.");
             return false;
         }
+
         HaskShop.economy.withdrawPlayer(p.getName(), totalPrice);
-        ItemStack[] stacks = (shop.item == Material.MOB_SPAWNER && shop.spawnerType != null)
-            ? SpawnerUtil.createStacks(shop.spawnerType, totalItems)
-            : buildStacks(shop.item, totalItems);
-        p.getInventory().addItem(stacks);
-        p.sendMessage("§aCompra realizada! §f" + totalItems + "x " + shop.item.name().replace("_", " ") + " §apor §f" + totalPrice + " coins.");
+        p.getInventory().addItem(toGive);
+        p.sendMessage("\u00A7aCompra realizada! \u00A7f" + totalItems + "x " + getItemDisplayName(shop) + " \u00A7apor \u00A7f" + String.format("%.2f", totalPrice) + " coins.");
         return true;
     }
 
@@ -162,20 +205,40 @@ public class ShopManager {
         double totalPrice = shop.price * qty;
 
         int count = 0;
+        Material mat = shop.customItemId != null ? plugin.customItemRegistry.get(shop.customItemId).getType() : shop.item;
         for (ItemStack is : p.getInventory().getContents()) {
-            if (is != null && is.getType() == shop.item) count += is.getAmount();
+            if (is != null && is.getType() == mat) {
+                if (shop.customItemId != null) {
+                    String id = CustomItemBuilder.getId(is);
+                    if (shop.customItemId.equals(id)) {
+                        count += is.getAmount();
+                    }
+                } else {
+                    count += is.getAmount();
+                }
+            }
         }
         if (count < totalItems) {
-            p.sendMessage("§cVoce precisa de §f" + totalItems + "x " + shop.item.name().replace("_", " ") + " §cpara vender.");
+            p.sendMessage("\u00A7cVoce precisa de \u00A7f" + totalItems + "x " + getItemDisplayName(shop) + " \u00A7cpara vender.");
             return false;
         }
-        HashMap<Integer, ItemStack> remaining = p.getInventory().removeItem(new ItemStack(shop.item, totalItems));
-        if (!remaining.isEmpty()) {
-            p.sendMessage("§cErro ao remover itens. Tente novamente.");
-            return false;
+
+        int toRemove = totalItems;
+        for (ItemStack is : p.getInventory().getContents()) {
+            if (toRemove <= 0) break;
+            if (is == null || is.getType() != mat) continue;
+            if (shop.customItemId != null) {
+                String id = CustomItemBuilder.getId(is);
+                if (!shop.customItemId.equals(id)) continue;
+            }
+            int remove = Math.min(is.getAmount(), toRemove);
+            is.setAmount(is.getAmount() - remove);
+            toRemove -= remove;
         }
+        p.updateInventory();
+
         HaskShop.economy.depositPlayer(p.getName(), totalPrice);
-        p.sendMessage("§aVenda realizada! §f" + totalItems + "x " + shop.item.name().replace("_", " ") + " §apor §f" + totalPrice + " coins.");
+        p.sendMessage("\u00A7aVenda realizada! \u00A7f" + totalItems + "x " + getItemDisplayName(shop) + " \u00A7apor \u00A7f" + String.format("%.2f", totalPrice) + " coins.");
         return true;
     }
 

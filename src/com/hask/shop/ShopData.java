@@ -15,6 +15,7 @@ public class ShopData {
     public boolean enabled;
     public boolean askQuantity;
     public String spawnerType; // null se nao for spawner, ex: "ZOMBIE", "BLAZE"
+    public String customItemId; // null se nao for item custom, ex: "gerador_bedrock"
 
     public Location getLocation() {
         return new Location(Bukkit.getWorld(world), x, y, z);

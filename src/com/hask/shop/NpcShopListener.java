@@ -24,7 +24,7 @@ public class NpcShopListener implements Listener {
         event.setCancelled(true);
 
         if (shop.items.isEmpty()) {
-            p.sendMessage("§cEsta loja nao tem itens configurados.");
+            p.sendMessage("\u00A7cEsta loja nao tem itens configurados.");
             return;
         }
 

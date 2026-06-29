@@ -20,13 +20,13 @@ public class NpcShopTrait extends Trait {
         NpcShopManager.NpcShop shop = HaskShop.instance.npcShopManager.getShop(npcId);
 
         if (shop == null) {
-            event.getClicker().sendMessage("§cEsta NPC nao tem loja configurada.");
-            event.getClicker().sendMessage("§7Adicione o ID §f" + npcId + " §7ao §fnpc-shops.yml §7e recarregue com §f/cs reload§7.");
+            event.getClicker().sendMessage("\u00A7cEsta NPC nao tem loja configurada.");
+            event.getClicker().sendMessage("\u00A77Adicione o ID \u00A7f" + npcId + " \u00A77ao \u00A7fnpc-shops.yml \u00A77e recarregue com \u00A7f/hs reload\u00A77.");
             return;
         }
 
         if (shop.items.isEmpty()) {
-            event.getClicker().sendMessage("§cEsta loja nao tem itens configurados.");
+            event.getClicker().sendMessage("\u00A7cEsta loja nao tem itens configurados.");
             return;
         }
 

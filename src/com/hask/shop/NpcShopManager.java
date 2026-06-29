@@ -56,7 +56,7 @@ public class NpcShopManager {
         if (shopsSec == null) return;
 
         for (String key : shopsSec.getKeys(false)) {
-            String name = shopsSec.getString(key + ".name", "§dLoja");
+            String name = shopsSec.getString(key + ".name", "\u00A7dLoja");
             List<NpcShopItem> items = new ArrayList<>();
 
             List<?> itemList = shopsSec.getList(key + ".items");

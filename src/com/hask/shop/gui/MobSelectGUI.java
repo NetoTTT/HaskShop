@@ -14,7 +14,7 @@ import java.util.List;
 
 public class MobSelectGUI {
 
-    public static final String TITLE_PREFIX = "§5Spawner §8#";
+    public static final String TITLE_PREFIX = "\u00A75Spawner \u00A78#";
 
     // Slots internos: 4 linhas de 7 + 2 extras na linha de navegacao
     private static final int[] INNER_SLOTS = {
@@ -28,7 +28,7 @@ public class MobSelectGUI {
     public static void open(Player p, ShopData shop) {
         Inventory inv = Bukkit.createInventory(null, 54, TITLE_PREFIX + shop.id);
 
-        ItemStack glass = slot(Material.STAINED_GLASS_PANE, (short) 7, "§r", null);
+        ItemStack glass = slot(Material.STAINED_GLASS_PANE, (short) 7, "\u00A7r", null);
         for (int i = 0; i < 54; i++) inv.setItem(i, glass);
 
         // Slot de titulo
@@ -37,11 +37,11 @@ public class MobSelectGUI {
                 ? SpawnerUtil.getEntry(shop.spawnerType).ptName
                 : shop.spawnerType)
             : "Nenhum";
-        inv.setItem(4, slot(Material.MOB_SPAWNER, (short) 0, "§5§lSELECIONAR MOB",
+        inv.setItem(4, slot(Material.MOB_SPAWNER, (short) 0, "\u00A75\u00A7lSELECIONAR MOB",
             Arrays.asList(
-                "§7Atual: §f" + atualDisplay,
+                "\u00A77Atual: \u00A7f" + atualDisplay,
                 "",
-                "§cHostil   §eNeutro   §aPassivo"
+                "\u00A7cHostil   \u00A7eNeutro   \u00A7aPassivo"
             )));
 
         // Mobs
@@ -51,19 +51,19 @@ public class MobSelectGUI {
             boolean selected = mob.type.name().equals(shop.spawnerType);
             ItemStack egg = new ItemStack(Material.MONSTER_EGG, 1, mob.eggData);
             ItemMeta meta = egg.getItemMeta();
-            meta.setDisplayName(mob.color + "§l" + mob.ptName);
+            meta.setDisplayName(mob.color + "\u00A7l" + mob.ptName);
             meta.setLore(Arrays.asList(
-                "§8» §7" + mob.type.name(),
+                "\u00A78» \u00A77" + mob.type.name(),
                 "",
-                selected ? "§a§l✔ Selecionado" : "§7Clique para selecionar"
+                selected ? "\u00A7a\u00A7l✔ Selecionado" : "\u00A77Clique para selecionar"
             ));
             egg.setItemMeta(meta);
             inv.setItem(INNER_SLOTS[i], egg);
         }
 
         // Botao voltar
-        inv.setItem(49, slot(Material.ARROW, (short) 0, "§7Voltar",
-            Arrays.asList("§7Volta para a edicao da loja")));
+        inv.setItem(49, slot(Material.ARROW, (short) 0, "\u00A77Voltar",
+            Arrays.asList("\u00A77Volta para a edicao da loja")));
 
         p.openInventory(inv);
     }

@@ -3,6 +3,7 @@ package com.hask.shop;
 import com.hask.shop.gui.ConfirmGUI;
 import com.hask.shop.gui.EditGUI;
 import com.hask.shop.SpawnerUtil;
+import com.gmail.nossr50.datatypes.skills.SkillType;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -15,6 +16,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import java.util.UUID;
 
 public class ShopListener implements Listener {
@@ -32,33 +34,34 @@ public class ShopListener implements Listener {
 
         Player p = e.getPlayer();
 
-        // Modo info: /cs info
+        // Modo info: /hs info
         if (plugin.pendingInfo.contains(p.getUniqueId())) {
             plugin.pendingInfo.remove(p.getUniqueId());
             e.setCancelled(true);
             ShopData info = plugin.shopManager.getByLocation(b.getLocation());
             if (info == null) {
-                p.sendMessage("§cEsta placa nao e uma loja registrada.");
+                p.sendMessage("\u00A7cEsta placa nao e uma loja registrada.");
             } else {
-                p.sendMessage("§6§l=== Loja #" + info.id + " ===");
-                p.sendMessage("§fTipo: §e" + info.type);
-                p.sendMessage("§fItem: §e" + info.item.name() + " x" + info.amount);
-                p.sendMessage("§fPreco: §e" + info.price + " coins");
-                p.sendMessage("§fQtd livre: §e" + (info.askQuantity ? "SIM" : "NAO"));
-                p.sendMessage("§fStatus: " + (info.enabled ? "§aATIVA" : "§cDESATIVADA"));
-                p.sendMessage("§fLocal: §7" + info.world + " " + info.x + "," + info.y + "," + info.z);
-                p.sendMessage("§7Use §f/cs edit " + info.id + " §7para editar.");
+                p.sendMessage("\u00A76\u00A7l=== Loja #" + info.id + " ===");
+                p.sendMessage("\u00A7fTipo: \u00A7e" + info.type);
+                String itemName = info.customItemId != null ? info.customItemId : info.item.name() + " x" + info.amount;
+                p.sendMessage("\u00A7fItem: \u00A7e" + itemName);
+                p.sendMessage("\u00A7fPreco: \u00A7e" + info.price + " coins");
+                p.sendMessage("\u00A7fQtd livre: \u00A7e" + (info.askQuantity ? "SIM" : "NAO"));
+                p.sendMessage("\u00A7fStatus: " + (info.enabled ? "\u00A7aATIVA" : "\u00A7cDESATIVADA"));
+                p.sendMessage("\u00A7fLocal: \u00A77" + info.world + " " + info.x + "," + info.y + "," + info.z);
+                p.sendMessage("\u00A77Use \u00A7f/hs edit " + info.id + " \u00A77para editar.");
             }
             return;
         }
 
-        // Modo de criacao: /cs add
+        // Modo de criacao: /hs add
         if (plugin.pendingAdd.contains(p.getUniqueId())) {
             plugin.pendingAdd.remove(p.getUniqueId());
             e.setCancelled(true);
             int id = plugin.shopManager.register(b.getLocation());
-            p.sendMessage("§a§lLoja criada! §fID: §e#" + id);
-            p.sendMessage("§7Use §f/cs edit " + id + " §7para configurar.");
+            p.sendMessage("\u00A7a\u00A7lLoja criada! \u00A7fID: \u00A7e#" + id);
+            p.sendMessage("\u00A77Use \u00A7f/hs edit " + id + " \u00A77para configurar.");
             return;
         }
 
@@ -68,7 +71,7 @@ public class ShopListener implements Listener {
         e.setCancelled(true);
 
         if (!shop.enabled) {
-            p.sendMessage("§cEsta loja esta desativada.");
+            p.sendMessage("\u00A7cEsta loja esta desativada.");
             return;
         }
 
@@ -81,8 +84,8 @@ public class ShopListener implements Listener {
         if (shop.askQuantity) {
             plugin.pendingPurchaseQty.put(p.getUniqueId(), shop);
             String verb = shop.type.equals("BUY") ? "comprar" : "vender";
-            p.sendMessage("§eQuantos voce quer " + verb + "? §7(unidade = §f" + shop.amount + "x§7)");
-            p.sendMessage("§7Digite §ccancel §7para cancelar.");
+            p.sendMessage("\u00A7eQuantos voce quer " + verb + "? \u00A77(unidade = \u00A7f" + shop.amount + "x\u00A77)");
+            p.sendMessage("\u00A77Digite \u00A7ccancel \u00A77para cancelar.");
         } else {
             executeTransaction(p, shop, 1);
         }
@@ -100,6 +103,35 @@ public class ShopListener implements Listener {
     public void onChat(AsyncPlayerChatEvent e) {
         Player p = e.getPlayer();
 
+        // Selecao de skill do booster
+        ItemStack boosterItem = plugin.pendingBooster.get(p.getUniqueId());
+        if (boosterItem != null) {
+            e.setCancelled(true);
+            String input = e.getMessage().trim();
+            if (input.equalsIgnoreCase("cancel")) {
+                plugin.pendingBooster.remove(p.getUniqueId());
+                p.sendMessage("\u00A77Cancelado.");
+                return;
+            }
+            SkillType skill = SkillType.getSkill(input.toUpperCase());
+            if (skill == null || skill.isChildSkill()) {
+                p.sendMessage("\u00A7cSkill invalida! Digite o nome exato da skill.");
+                p.sendMessage("\u00A77Ex: \u00A7fMINING\u00A77, \u00A7fWOODCUTTING\u00A77, \u00A7fSWORDS");
+                return;
+            }
+            plugin.pendingBooster.remove(p.getUniqueId());
+
+            if (boosterItem.getAmount() > 1) {
+                boosterItem.setAmount(boosterItem.getAmount() - 1);
+            } else {
+                p.setItemInHand(null);
+            }
+            p.updateInventory();
+
+            plugin.boosterManager.activate(p, skill);
+            return;
+        }
+
         // Entrada de quantidade para compra/venda (placa)
         ShopData qtyShop = plugin.pendingPurchaseQty.get(p.getUniqueId());
         if (qtyShop != null) {
@@ -107,7 +139,7 @@ public class ShopListener implements Listener {
             String input = e.getMessage().trim();
             if (input.equalsIgnoreCase("cancel")) {
                 plugin.pendingPurchaseQty.remove(p.getUniqueId());
-                p.sendMessage("§7Cancelado.");
+                p.sendMessage("\u00A77Cancelado.");
                 return;
             }
             boolean isAll = isAll(input);
@@ -116,17 +148,17 @@ public class ShopListener implements Listener {
                 if (qtyShop.type.equals("SELL")) {
                     int count = countItems(p, qtyShop.item);
                     qty = count / qtyShop.amount;
-                    if (qty < 1) { p.sendMessage("§cVoce nao tem §f" + qtyShop.amount + "x §c" + qtyShop.item.name() + " §cno inventario."); return; }
+                    if (qty < 1) { p.sendMessage("\u00A7cVoce nao tem \u00A7f" + qtyShop.amount + "x \u00A7c" + qtyShop.item.name() + " \u00A7cno inventario."); return; }
                 } else {
                     int space = plugin.shopManager.freeSpace(p, qtyShop.item);
                     int maxBySpace = space / qtyShop.amount;
                     int maxByMoney = (int)(HaskShop.economy.getBalance(p.getName()) / qtyShop.price);
                     qty = Math.min(maxBySpace, maxByMoney);
-                    if (qty < 1) { p.sendMessage("§cCoins ou espaco insuficiente para comprar."); return; }
+                    if (qty < 1) { p.sendMessage("\u00A7cCoins ou espaco insuficiente para comprar."); return; }
                 }
             } else {
-                try { qty = Integer.parseInt(input); } catch (NumberFormatException ex) { p.sendMessage("§cDigite um numero ou §fall§c/§ftodos§c/§ftudo§c/§fmax§c para o maximo."); return; }
-                if (qty < 1) { p.sendMessage("§cA quantidade deve ser pelo menos §f1§c."); return; }
+                try { qty = Integer.parseInt(input); } catch (NumberFormatException ex) { p.sendMessage("\u00A7cDigite um numero ou \u00A7fall\u00A7c/\u00A7ftodos\u00A7c/\u00A7ftudo\u00A7c/\u00A7fmax\u00A7c para o maximo."); return; }
+                if (qty < 1) { p.sendMessage("\u00A7cA quantidade deve ser pelo menos \u00A7f1\u00A7c."); return; }
             }
             plugin.pendingPurchaseQty.remove(p.getUniqueId());
             final ShopData shop = qtyShop;
@@ -134,7 +166,7 @@ public class ShopListener implements Listener {
             if (shop.type.equals("BUY")) {
                 int space = plugin.shopManager.freeSpace(p, shop.item);
                 if (space < shop.amount * qty) {
-                    p.sendMessage("§cInventario cheio! Espaco para §f" + space + " §citens, precisa de §f" + (shop.amount * qty) + "§c.");
+                    p.sendMessage("\u00A7cInventario cheio! Espaco para \u00A7f" + space + " \u00A7citens, precisa de \u00A7f" + (shop.amount * qty) + "\u00A7c.");
                     return;
                 }
             }
@@ -150,7 +182,7 @@ public class ShopListener implements Listener {
             String input = e.getMessage().trim();
             if (input.equalsIgnoreCase("cancel")) {
                 plugin.pendingNpcQty.remove(p.getUniqueId());
-                p.sendMessage("§7Cancelado.");
+                p.sendMessage("\u00A77Cancelado.");
                 return;
             }
             boolean isAll = isAll(input);
@@ -158,16 +190,16 @@ public class ShopListener implements Listener {
             if (isAll) {
                 if (npcQtySession.transactionType.equals("SELL")) {
                     qty = countItems(p, npcQtySession.item.itemType);
-                    if (qty < 1) { p.sendMessage("§cVoce nao tem §f" + npcQtySession.item.itemType.name() + " §cno inventario."); return; }
+                    if (qty < 1) { p.sendMessage("\u00A7cVoce nao tem \u00A7f" + npcQtySession.item.itemType.name() + " \u00A7cno inventario."); return; }
                 } else {
                     int space = plugin.shopManager.freeSpace(p, npcQtySession.item.itemType);
                     int maxByMoney = (int)(HaskShop.economy.getBalance(p.getName()) / npcQtySession.item.buyPrice);
                     qty = Math.min(space, maxByMoney);
-                    if (qty < 1) { p.sendMessage("§cCoins ou espaco insuficiente para comprar."); return; }
+                    if (qty < 1) { p.sendMessage("\u00A7cCoins ou espaco insuficiente para comprar."); return; }
                 }
             } else {
-                try { qty = Integer.parseInt(input); } catch (NumberFormatException ex) { p.sendMessage("§cDigite um numero ou §fall§c/§ftodos§c/§ftudo§c/§fmax§c para o maximo."); return; }
-                if (qty < 1) { p.sendMessage("§cA quantidade deve ser pelo menos §f1§c."); return; }
+                try { qty = Integer.parseInt(input); } catch (NumberFormatException ex) { p.sendMessage("\u00A7cDigite um numero ou \u00A7fall\u00A7c/\u00A7ftodos\u00A7c/\u00A7ftudo\u00A7c/\u00A7fmax\u00A7c para o maximo."); return; }
+                if (qty < 1) { p.sendMessage("\u00A7cA quantidade deve ser pelo menos \u00A7f1\u00A7c."); return; }
             }
             plugin.pendingNpcQty.remove(p.getUniqueId());
             final com.hask.shop.NpcQtySession s = npcQtySession;
@@ -188,7 +220,7 @@ public class ShopListener implements Listener {
 
         if (input.equalsIgnoreCase("cancel")) {
             plugin.pendingEdit.remove(p.getUniqueId());
-            p.sendMessage("§7Edicao cancelada.");
+            p.sendMessage("\u00A77Edicao cancelada.");
             return;
         }
 
@@ -200,35 +232,51 @@ public class ShopListener implements Listener {
             case "item":
                 Material mat = Material.getMaterial(input.toUpperCase());
                 if (mat == null || mat == Material.AIR) {
-                    p.sendMessage("§cItem invalido: §f" + input);
-                    p.sendMessage("§7Use o nome em ingles maiusculo. Ex: §fDIAMOND§7, §fIRON_INGOT");
+                    p.sendMessage("\u00A7cItem invalido: \u00A7f" + input);
+                    p.sendMessage("\u00A77Use o nome em ingles maiusculo. Ex: \u00A7fDIAMOND\u00A77, \u00A7fIRON_INGOT");
                     return;
                 }
                 shop.item = mat;
                 plugin.shopManager.save();
-                p.sendMessage("§aItem definido: §f" + mat.name());
+                p.sendMessage("\u00A7aItem definido: \u00A7f" + mat.name());
                 break;
             case "price":
                 try {
                     double price = Double.parseDouble(input.replace(",", "."));
-                    if (price < 0) { p.sendMessage("§cO preco nao pode ser negativo."); return; }
+                    if (price < 0) { p.sendMessage("\u00A7cO preco nao pode ser negativo."); return; }
                     shop.price = price;
                     plugin.shopManager.save();
-                    p.sendMessage("§aPreco definido: §f" + price + " coins");
+                    p.sendMessage("\u00A7aPreco definido: \u00A7f" + price + " coins");
                 } catch (NumberFormatException ex) {
-                    p.sendMessage("§cNumero invalido: §f" + input);
+                    p.sendMessage("\u00A7cNumero invalido: \u00A7f" + input);
                     return;
                 }
                 break;
             case "amount":
                 try {
                     int amount = Integer.parseInt(input);
-                    if (amount < 1 || amount > 64) { p.sendMessage("§cQuantidade deve ser entre §f1 §ce §f64§c."); return; }
+                    if (amount < 1 || amount > 64) { p.sendMessage("\u00A7cQuantidade deve ser entre \u00A7f1 \u00A7ce \u00A7f64\u00A7c."); return; }
                     shop.amount = amount;
                     plugin.shopManager.save();
-                    p.sendMessage("§aQuantidade definida: §f" + amount);
+                    p.sendMessage("\u00A7aQuantidade definida: \u00A7f" + amount);
                 } catch (NumberFormatException ex) {
-                    p.sendMessage("§cNumero invalido: §f" + input);
+                    p.sendMessage("\u00A7cNumero invalido: \u00A7f" + input);
+                    return;
+                }
+                break;
+            case "customitem":
+                if (input.equalsIgnoreCase("none")) {
+                    shop.customItemId = null;
+                    plugin.shopManager.save();
+                    p.sendMessage("\u00A7aItem custom removido. Usando \u00A7f" + shop.item.name() + " \u00A7apuro.");
+                } else if (plugin.customItemRegistry.contains(input)) {
+                    shop.customItemId = input;
+                    shop.item = plugin.customItemRegistry.get(input).getType();
+                    plugin.shopManager.save();
+                    p.sendMessage("\u00A7aItem custom definido: \u00A7f" + input);
+                } else {
+                    p.sendMessage("\u00A7cItem custom \u00A7f" + input + " \u00A7cnao encontrado em custom-items.yml.");
+                    p.sendMessage("\u00A77Use \u00A7f/hs items \u00A77para listar os disponiveis.");
                     return;
                 }
                 break;
@@ -248,9 +296,9 @@ public class ShopListener implements Listener {
         e.setCancelled(true);
         Player p = e.getPlayer();
         if (p.hasPermission("shopsign.admin")) {
-            p.sendMessage("§cEsta placa e uma loja (§f#" + shop.id + "§c). Use §f/cs remove " + shop.id + " §cprimeiro.");
+            p.sendMessage("\u00A7cEsta placa e uma loja (\u00A7f#" + shop.id + "\u00A7c). Use \u00A7f/hs remove " + shop.id + " \u00A7cprimeiro.");
         } else {
-            p.sendMessage("§cVoce nao pode quebrar esta placa.");
+            p.sendMessage("\u00A7cVoce nao pode quebrar esta placa.");
         }
     }
 
@@ -264,6 +312,7 @@ public class ShopListener implements Listener {
         plugin.pendingConfirm.remove(uuid);
         plugin.pendingNpcQty.remove(uuid);
         plugin.pendingNpcConfirm.remove(uuid);
+        plugin.pendingBooster.remove(uuid);
         plugin.cooldowns.remove(uuid);
     }
 

@@ -17,7 +17,7 @@ import java.util.List;
 
 public class NpcShopGUI {
 
-    public static final String TITLE_PREFIX = "§5NpcShop §8";
+    public static final String TITLE_PREFIX = "\u00A75NpcShop \u00A78";
     public static final int ITEMS_PER_PAGE = 28;
 
     static final int[] INNER_SLOTS = {
@@ -36,15 +36,15 @@ public class NpcShopGUI {
 
         Inventory inv = Bukkit.createInventory(null, 54, TITLE_PREFIX + shop.shopId);
 
-        ItemStack glass = build(Material.STAINED_GLASS_PANE, (short) 7, "§r", null);
+        ItemStack glass = build(Material.STAINED_GLASS_PANE, (short) 7, "\u00A7r", null);
         for (int i = 0; i < 54; i++) inv.setItem(i, glass);
 
         inv.setItem(4, build(Material.NETHER_STAR, (short) 0, shop.name,
             Arrays.asList(
-                "§7Pagina §f" + (page + 1) + " §7de §f" + totalPages,
-                "§7" + shop.items.size() + " item(s) no catalogo",
+                "\u00A77Pagina \u00A7f" + (page + 1) + " \u00A77de \u00A7f" + totalPages,
+                "\u00A77" + shop.items.size() + " item(s) no catalogo",
                 "",
-                "§a[Esq] §7Comprar  §e[Dir] §7Vender"
+                "\u00A7a[Esq] \u00A77Comprar  \u00A7e[Dir] \u00A77Vender"
             )));
 
         int start = page * ITEMS_PER_PAGE;
@@ -55,13 +55,13 @@ public class NpcShopGUI {
         }
 
         if (page > 0) {
-            inv.setItem(45, build(Material.ARROW, (short) 0, "§a« Pagina Anterior",
-                Arrays.asList("§7Ir para pagina §f" + page)));
+            inv.setItem(45, build(Material.ARROW, (short) 0, "\u00A7a« Pagina Anterior",
+                Arrays.asList("\u00A77Ir para pagina \u00A7f" + page)));
         }
-        inv.setItem(49, build(Material.BARRIER, (short) 0, "§cFechar", null));
+        inv.setItem(49, build(Material.BARRIER, (short) 0, "\u00A7cFechar", null));
         if (page < totalPages - 1) {
-            inv.setItem(53, build(Material.ARROW, (short) 0, "§aProxima Pagina »",
-                Arrays.asList("§7Ir para pagina §f" + (page + 2))));
+            inv.setItem(53, build(Material.ARROW, (short) 0, "\u00A7aProxima Pagina »",
+                Arrays.asList("\u00A77Ir para pagina \u00A7f" + (page + 2))));
         }
 
         p.openInventory(inv);
@@ -74,25 +74,25 @@ public class NpcShopGUI {
         if (item.isSpawner()) {
             SpawnerUtil.MobEntry entry = SpawnerUtil.getEntry(item.mobType);
             String ptName = entry != null ? entry.ptName : item.mobType;
-            String color  = entry != null ? entry.color  : "§f";
+            String color  = entry != null ? entry.color  : "\u00A7f";
             short eggData = entry != null ? entry.eggData : 0;
             is = new ItemStack(Material.MONSTER_EGG, 1, eggData);
-            displayName = color + "§lSpawner de " + ptName;
+            displayName = color + "\u00A7lSpawner de " + ptName;
         } else {
             is = new ItemStack(item.itemType, 1);
-            displayName = "§f§l" + formatName(item.itemType.name());
+            displayName = "\u00A7f\u00A7l" + formatName(item.itemType.name());
         }
 
         List<String> lore = new ArrayList<>();
-        if (!item.quantityFree) lore.add("§7Quantidade: §f" + item.amount + "x");
+        if (!item.quantityFree) lore.add("\u00A77Quantidade: \u00A7f" + item.amount + "x");
         lore.add("");
-        if (item.canBuy())  lore.add("§a[Esq] §7Comprar" + (item.quantityFree ? " §8(§7preco por unidade§8)" : " §6" + item.buyPrice + " coins"));
-        if (item.canSell()) lore.add("§e[Dir] §7Vender"  + (item.quantityFree ? " §8(§7preco por unidade§8)" : " §6" + item.sellPrice + " coins"));
-        if (item.canBuy()  && item.quantityFree) lore.add("    §6" + item.buyPrice  + " coins §7por item");
-        if (item.canSell() && item.quantityFree) lore.add("    §6" + item.sellPrice + " coins §7por item");
+        if (item.canBuy())  lore.add("\u00A7a[Esq] \u00A77Comprar" + (item.quantityFree ? " \u00A78(\u00A77preco por unidade\u00A78)" : " \u00A76" + item.buyPrice + " coins"));
+        if (item.canSell()) lore.add("\u00A7e[Dir] \u00A77Vender"  + (item.quantityFree ? " \u00A78(\u00A77preco por unidade\u00A78)" : " \u00A76" + item.sellPrice + " coins"));
+        if (item.canBuy()  && item.quantityFree) lore.add("    \u00A76" + item.buyPrice  + " coins \u00A77por item");
+        if (item.canSell() && item.quantityFree) lore.add("    \u00A76" + item.sellPrice + " coins \u00A77por item");
         if (item.quantityFree) {
             lore.add("");
-            lore.add("§b» §7Quantidade livre §8(§fall§8/§ftodos§8/§ftudo§8/§fmax §8= maximo)");
+            lore.add("\u00A7b» \u00A77Quantidade livre \u00A78(\u00A7fall\u00A78/\u00A7ftodos\u00A78/\u00A7ftudo\u00A78/\u00A7fmax \u00A78= maximo)");
         }
 
         ItemMeta meta = is.getItemMeta();

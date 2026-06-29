@@ -1,0 +1,21 @@
+== HaskShop - Pendencias ==
+
+[CUSTOM ITEMS - NPC SHOP INTEGRATION]
+Aceitar custom-item: <id> no npc-shops.yml, ex:
+
+  shops:
+    loja_especial:
+      name: "Loja Especial"
+      items:
+        - custom-item: picareta_silk2
+          buy_price: 5000.0
+          sell_price: 2000.0
+          quantity_free: true
+
+Para isso, no NpcShopManager:
+  - Ao carregar um item da config, checar se tem "custom-item:" em vez de "item:" ou "mob:"
+  - Se sim, buscar em HaskShop.instance.customItemRegistry.get(id) para pegar o ItemStack
+  - Guardar o ItemStack base no NpcShopItem para exibir no GUI e dar ao player
+  - Na compra: dar o item clonado (com hask_id no NBT intacto)
+  - Na venda: identificar pelo hask_id via CustomItemBuilder.getId(itemStack)
+    (nao comparar por Material, pois dois itens podem ter o mesmo material mas ser diferentes)

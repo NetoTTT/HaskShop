@@ -1,0 +1,12 @@
+﻿*.jar
+*.zip
+classes/
+deps/
+bin/
+build/
+target/
+*.iml
+.idea/
+*.log
+.DS_Store
+Thumbs.db

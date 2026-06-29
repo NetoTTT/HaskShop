@@ -13,39 +13,39 @@ import java.util.List;
 
 public class EditGUI {
 
-    public static final String TITLE_PREFIX = "§8Loja #";
+    public static final String TITLE_PREFIX = "\u00A78Loja #";
 
     public static void open(Player p, ShopData shop) {
         Inventory inv = Bukkit.createInventory(null, 27, TITLE_PREFIX + shop.id);
 
-        ItemStack glass = item(Material.STAINED_GLASS_PANE, (short) 7, "§r", null);
+        ItemStack glass = item(Material.STAINED_GLASS_PANE, (short) 7, "\u00A7r", null);
         for (int i = 0; i < 27; i++) inv.setItem(i, glass);
 
         // Slot 10 — Item da loja
         ItemStack itemSlot = new ItemStack(shop.item, Math.max(1, shop.amount));
         ItemMeta im = itemSlot.getItemMeta();
-        im.setDisplayName("§e§lItem");
+        im.setDisplayName("\u00A7e\u00A7lItem");
         im.setLore(Arrays.asList(
-            "§7Atual: §f" + shop.item.name(),
+            "\u00A77Atual: \u00A7f" + shop.item.name(),
             "",
-            "§7Clique para alterar",
-            "§7(digite o nome em inglês)"
+            "\u00A77Clique para alterar",
+            "\u00A77(digite o nome em inglês)"
         ));
         itemSlot.setItemMeta(im);
         inv.setItem(10, itemSlot);
 
         // Slot 12 — Quantidade (ou unidade base se quantidade livre)
         if (shop.askQuantity) {
-            inv.setItem(12, item(Material.PAPER, (short) 0, "§7§lUNIDADE BASE",
+            inv.setItem(12, item(Material.PAPER, (short) 0, "\u00A77\u00A7lUNIDADE BASE",
                 Arrays.asList(
-                    "§7Atual: §f" + shop.amount + "x por unidade",
+                    "\u00A77Atual: \u00A7f" + shop.amount + "x por unidade",
                     "",
-                    "§7Ex: membro digita §f3 §7→ recebe §f" + (shop.amount * 3) + "x",
-                    "§7Clique para alterar"
+                    "\u00A77Ex: membro digita \u00A7f3 \u00A77→ recebe \u00A7f" + (shop.amount * 3) + "x",
+                    "\u00A77Clique para alterar"
                 )));
         } else {
-            inv.setItem(12, item(Material.PAPER, (short) 0, "§b§lQuantidade por clique",
-                Arrays.asList("§7Atual: §f" + shop.amount + "x", "", "§7Clique para alterar")));
+            inv.setItem(12, item(Material.PAPER, (short) 0, "\u00A7b\u00A7lQuantidade por clique",
+                Arrays.asList("\u00A77Atual: \u00A7f" + shop.amount + "x", "", "\u00A77Clique para alterar")));
         }
 
         // Slot 14 — Tipo BUY / SELL
@@ -53,27 +53,27 @@ public class EditGUI {
         inv.setItem(14, item(
             isBuy ? Material.EMERALD : Material.REDSTONE,
             (short) 0,
-            isBuy ? "§a§lMODO: COMPRA" : "§c§lMODO: VENDA",
+            isBuy ? "\u00A7a\u00A7lMODO: COMPRA" : "\u00A7c\u00A7lMODO: VENDA",
             Arrays.asList(
-                isBuy ? "§7Jogador §apaga §7e §arecebe §7o item" : "§7Jogador §centrega §7o item e §crecebe §7coins",
+                isBuy ? "\u00A77Jogador \u00A7apaga \u00A77e \u00A7arecebe \u00A77o item" : "\u00A77Jogador \u00A7centrega \u00A77o item e \u00A7crecebe \u00A77coins",
                 "",
-                "§7Clique para alternar"
+                "\u00A77Clique para alternar"
             )
         ));
 
         // Slot 16 — Preço
-        inv.setItem(16, item(Material.GOLD_NUGGET, (short) 0, "§6§lPreço",
-            Arrays.asList("§7Atual: §f" + shop.price + " coins", "", "§7Clique para alterar")));
+        inv.setItem(16, item(Material.GOLD_NUGGET, (short) 0, "\u00A76\u00A7lPreço",
+            Arrays.asList("\u00A77Atual: \u00A7f" + shop.price + " coins", "", "\u00A77Clique para alterar")));
 
         // Slot 1 — Tipo do mob (apenas quando item e MOB_SPAWNER)
         if (shop.item == org.bukkit.Material.MOB_SPAWNER) {
-            String mobAtual = shop.spawnerType != null ? shop.spawnerType : "§cNAO DEFINIDO";
-            inv.setItem(1, item(Material.MOB_SPAWNER, (short) 0, "§d§lTIPO DO MOB",
+            String mobAtual = shop.spawnerType != null ? shop.spawnerType : "\u00A7cNAO DEFINIDO";
+            inv.setItem(1, item(Material.MOB_SPAWNER, (short) 0, "\u00A7d\u00A7lTIPO DO MOB",
                 Arrays.asList(
-                    "§7Atual: §f" + mobAtual,
+                    "\u00A77Atual: \u00A7f" + mobAtual,
                     "",
-                    "§7Clique para alterar",
-                    "§7Ex: §fZOMBIE§7, §fSKELETON§7, §fBLAZE§7, §fSPIDER"
+                    "\u00A77Clique para alterar",
+                    "\u00A77Ex: \u00A7fZOMBIE\u00A77, \u00A7fSKELETON\u00A77, \u00A7fBLAZE\u00A77, \u00A7fSPIDER"
                 )));
         }
 
@@ -81,25 +81,36 @@ public class EditGUI {
         inv.setItem(4, item(
             Material.WOOL,
             shop.askQuantity ? (short) 5 : (short) 14,
-            shop.askQuantity ? "§a§lQUANTIDADE LIVRE" : "§c§lQUANTIDADE FIXA",
+            shop.askQuantity ? "\u00A7a\u00A7lQUANTIDADE LIVRE" : "\u00A7c\u00A7lQUANTIDADE FIXA",
             Arrays.asList(
-                shop.askQuantity ? "§7Membro escolhe a qtd ao clicar" : "§7Vende sempre §f" + shop.amount + "x §7por clique",
+                shop.askQuantity ? "\u00A77Membro escolhe a qtd ao clicar" : "\u00A77Vende sempre \u00A7f" + shop.amount + "x \u00A77por clique",
                 "",
-                "§7Clique para alternar"
+                "\u00A77Clique para alternar"
             )
         ));
+
+        // Slot 6 — Item custom (NBT)
+        String customAtual = shop.customItemId != null ? shop.customItemId : "\u00A7cNENHUM";
+        inv.setItem(6, item(Material.ANVIL, (short) 0, "\u00A75\u00A7lITEM CUSTOM (NBT)",
+            Arrays.asList(
+                "\u00A77Atual: \u00A7f" + customAtual,
+                "",
+                "\u00A77Clique para alterar",
+                "\u00A77Ex: \u00A7fgerador_bedrock\u00A77, \u00A7fescavador_chunk",
+                "\u00A77Digite \u00A7fnone \u00A77para remover"
+            )));
 
         // Slot 22 — Ativar / Desativar
         inv.setItem(22, item(
             shop.enabled ? Material.WOOL : Material.WOOL,
             shop.enabled ? (short) 5 : (short) 14,
-            shop.enabled ? "§a§lLOJA ATIVA" : "§c§lLOJA DESATIVADA",
-            Arrays.asList("§7Clique para " + (shop.enabled ? "§cdesativar" : "§aativar"))
+            shop.enabled ? "\u00A7a\u00A7lLOJA ATIVA" : "\u00A7c\u00A7lLOJA DESATIVADA",
+            Arrays.asList("\u00A77Clique para " + (shop.enabled ? "\u00A7cdesativar" : "\u00A7aativar"))
         ));
 
         // Slot 26 — Remover
-        inv.setItem(26, item(Material.BARRIER, (short) 0, "§c§lREMOVER LOJA",
-            Arrays.asList("§7Remove esta loja permanentemente.", "§cClique para confirmar.")));
+        inv.setItem(26, item(Material.BARRIER, (short) 0, "\u00A7c\u00A7lREMOVER LOJA",
+            Arrays.asList("\u00A77Remove esta loja permanentemente.", "\u00A7cClique para confirmar.")));
 
         p.openInventory(inv);
     }
